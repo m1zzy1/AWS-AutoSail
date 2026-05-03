@@ -1,0 +1,271 @@
+body.site-bg {
+  background-color: #f8fafc;
+  background-image: url('/static/bg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
+body.site-bg header,
+body.site-bg main,
+body.site-bg .w-full.max-w-md {
+  position: relative;
+  z-index: 1;
+}
+
+/* Make most panels and cards translucent */
+body.site-bg [class*="bg-white"],
+body.site-bg [class*="bg-slate-50"],
+body.site-bg [class*="bg-indigo-50"],
+body.site-bg [class*="bg-emerald-50"],
+body.site-bg [class*="bg-rose-50"],
+body.site-bg [class*="bg-amber-50"],
+body.site-bg [class*="bg-sky-50"] {
+  background-color: rgba(255, 255, 255, 0.38) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Keep dark primary buttons readable while still slightly translucent */
+body.site-bg [class*="bg-slate-900"] {
+  background-color: rgba(15, 23, 42, 0.78) !important;
+}
+
+/* Softer borders and shadows for transparent style */
+body.site-bg [class*="border-slate-200"],
+body.site-bg [class*="border-slate-100"],
+body.site-bg [class*="border-white"] {
+  border-color: rgba(255, 255, 255, 0.45) !important;
+}
+
+body.site-bg [class*="shadow"] {
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12) !important;
+}
+
+/* Inputs should remain clear and legible */
+body.site-bg input,
+body.site-bg select,
+body.site-bg textarea {
+  background-color: rgba(255, 255, 255, 0.46) !important;
+  border-color: rgba(255, 255, 255, 0.55) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Desktop performance mode: keep transparency, reduce heavy blur cost */
+@media (min-width: 1024px) {
+  body.site-bg [class*="bg-white"],
+  body.site-bg [class*="bg-slate-50"],
+  body.site-bg [class*="bg-indigo-50"],
+  body.site-bg [class*="bg-emerald-50"],
+  body.site-bg [class*="bg-rose-50"],
+  body.site-bg [class*="bg-amber-50"],
+  body.site-bg [class*="bg-sky-50"],
+  body.site-bg input,
+  body.site-bg select,
+  body.site-bg textarea {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+/* Shared custom context menu style */
+@keyframes ctx-in {
+  from { opacity: 0; transform: scale(0.92) translateY(-5px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
+}
+
+.custom-context-menu {
+  position: fixed;
+  z-index: 99999;
+  width: max-content;
+  min-width: 0;
+  border: 1px solid rgba(255, 255, 255, 0.50);
+  border-radius: 10px;
+  background: rgba(235, 243, 255, 0.30);
+  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.20), 0 2px 6px rgba(0, 0, 0, 0.07);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  padding: 4px 0;
+  display: none;
+  transform-origin: top left;
+  overflow: hidden;
+}
+
+.custom-context-menu.ctx-visible {
+  display: block;
+  animation: ctx-in 0.15s cubic-bezier(0.2, 0.9, 0.4, 1) both;
+}
+
+.custom-context-menu button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+  border-radius: 6px;
+  margin: 0 4px;
+  width: calc(100% - 8px);
+  padding: 6px 12px 6px 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #1e293b;
+  text-align: left;
+  line-height: 1.4;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.12s ease, box-shadow 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.custom-context-menu button:hover,
+.custom-context-menu button:focus {
+  background: rgba(148, 182, 233, 0.22);
+  box-shadow: inset 0 0 0 1px rgba(148, 182, 233, 0.30);
+  color: #0f172a;
+}
+
+.custom-context-menu button:active {
+  background: rgba(148, 182, 233, 0.32);
+  box-shadow: inset 0 0 0 1px rgba(148, 182, 233, 0.40);
+  color: #0f172a;
+}
+
+/* Shared confirm modal */
+.custom-confirm-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(15, 23, 42, 0.36);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.custom-confirm-mask.is-open {
+  display: flex;
+}
+
+.custom-confirm-dialog {
+  width: min(420px, 100%);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.28), 0 2px 10px rgba(15, 23, 42, 0.12);
+  transform: translateY(6px) scale(0.98);
+  opacity: 0;
+  transition: transform 0.16s ease, opacity 0.16s ease;
+  overflow: hidden;
+}
+
+.custom-confirm-mask.is-open .custom-confirm-dialog {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+.custom-confirm-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 18px 8px;
+}
+
+.custom-confirm-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #be123c;
+  background: #ffe4e6;
+  border: 1px solid #fecdd3;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.custom-confirm-dialog[data-variant="default"] .custom-confirm-icon {
+  color: #1d4ed8;
+  background: #dbeafe;
+  border-color: #bfdbfe;
+}
+
+.custom-confirm-dialog[data-variant="danger"] .custom-confirm-icon {
+  color: #be123c;
+  background: #ffe4e6;
+  border-color: #fecdd3;
+}
+
+.custom-confirm-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.custom-confirm-message {
+  margin: 0;
+  padding: 0 18px 16px;
+  color: #334155;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.custom-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 12px 16px 16px;
+  border-top: 1px solid rgba(148, 163, 184, 0.20);
+  background: rgba(248, 250, 252, 0.75);
+}
+
+.custom-confirm-btn {
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.14s ease;
+}
+
+.custom-confirm-btn.cancel {
+  border-color: #cbd5e1;
+  color: #334155;
+  background: #fff;
+}
+
+.custom-confirm-btn.cancel:hover {
+  border-color: #94a3b8;
+  background: #f8fafc;
+}
+
+.custom-confirm-btn.confirm {
+  color: #fff;
+}
+
+.custom-confirm-dialog[data-variant="default"] .custom-confirm-btn.confirm {
+  border-color: #93c5fd;
+  background: #2563eb;
+}
+
+.custom-confirm-dialog[data-variant="default"] .custom-confirm-btn.confirm:hover {
+  background: #1d4ed8;
+  border-color: #60a5fa;
+}
+
+.custom-confirm-dialog[data-variant="danger"] .custom-confirm-btn.confirm {
+  border-color: #fda4af;
+  background: #e11d48;
+}
+
+.custom-confirm-dialog[data-variant="danger"] .custom-confirm-btn.confirm:hover {
+  background: #be123c;
+  border-color: #fb7185;
+}

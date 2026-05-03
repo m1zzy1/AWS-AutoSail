@@ -5,7 +5,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{.Title}}</title>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/static/site.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Inter', sans-serif; }
@@ -17,9 +19,40 @@
     
     /* 玻璃拟态与背景 */
     .glass-nav {
-      background: rgba(255, 255, 255, 0.8);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background: rgba(255, 255, 255, 0.38);
+      border-color: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(16px) saturate(125%);
+      -webkit-backdrop-filter: blur(16px) saturate(125%);
+    }
+
+    .top-glass-card {
+      background: rgba(255, 255, 255, 0.28) !important;
+      border-color: rgba(255, 255, 255, 0.48) !important;
+      backdrop-filter: blur(14px) saturate(120%);
+      -webkit-backdrop-filter: blur(14px) saturate(120%);
+    }
+
+    .top-glass-card summary:hover {
+      background: rgba(255, 255, 255, 0.12) !important;
+    }
+
+    .site-home-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      border-radius: 0.75rem;
+      padding: 0.25rem 0.4rem;
+      color: inherit;
+      text-decoration: none;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .site-home-link:hover {
+      background: rgba(255, 255, 255, 0.16);
+    }
+
+    .site-home-link:active {
+      transform: translateY(1px);
     }
   </style>
   <script>
@@ -41,7 +74,7 @@
   </script>
 </head>
 
-<body class="min-h-full bg-slate-50 text-slate-800 antialiased selection:bg-indigo-100 selection:text-indigo-900 pb-20">
+<body class="site-bg min-h-full text-slate-800 antialiased selection:bg-indigo-100 selection:text-indigo-900 pb-20">
 
   <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
     <div class="absolute -top-[20%] -left-[10%] h-[600px] w-[600px] rounded-full bg-indigo-100/50 blur-[100px]"></div>
@@ -52,12 +85,14 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex h-16 items-center justify-between">
         <div class="flex items-center gap-3">
-          <div class="bg-indigo-600 text-white p-1.5 rounded-lg shadow-sm">
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-          </div>
-          <h1 class="text-lg font-bold tracking-tight text-slate-900 hidden sm:block">
-            {{.Title}}
-          </h1>
+          <a href="/" id="siteHomeLink" class="site-home-link" title="返回首页">
+            <div class="bg-indigo-600 text-white p-1.5 rounded-lg shadow-sm">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </div>
+            <h1 class="text-lg font-bold tracking-tight text-slate-900 hidden sm:block">
+              {{.Title}}
+            </h1>
+          </a>
         </div>
 
         <div class="flex items-center gap-4">
@@ -70,7 +105,7 @@
             </div>
           {{end}}
 
-          <form method="post" action="/logout">
+          <form method="post" action="/logout" data-confirm="确定退出当前账号吗？" data-confirm-action="退出" data-confirm-variant="default">
             <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
             <button class="group flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors">
               <span>退出</span>
@@ -117,7 +152,7 @@
 
     <div class="grid gap-6 lg:grid-cols-2">
       
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow duration-300 overflow-hidden">
+      <div class="top-glass-card bg-white rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow duration-300 overflow-hidden">
         <details class="group" role="region">
           <summary class="flex cursor-pointer select-none items-center justify-between p-5 hover:bg-slate-50 transition-colors">
             <div class="flex items-center gap-3">
@@ -197,7 +232,7 @@
         </details>
       </div>
 
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow duration-300 overflow-hidden">
+      <div class="top-glass-card bg-white rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow duration-300 overflow-hidden">
         <details class="group" role="region">
           <summary class="flex cursor-pointer select-none items-center justify-between p-5 hover:bg-slate-50 transition-colors">
             <div class="flex items-center gap-3">
@@ -323,7 +358,7 @@
         <div class="px-5 pb-6 pt-2 border-t border-slate-100 bg-slate-50/50">
           <div class="flex items-center justify-between gap-4 mt-2 mb-4">
              <span class="text-xs font-bold text-slate-500 uppercase">注册状态</span>
-            <form method="post" action="/admin/registration">
+            <form method="post" action="/admin/registration" data-confirm="{{if .RegistrationOpen}}确定关闭新用户注册吗？{{else}}确定开启新用户注册吗？{{end}}" data-confirm-action="{{if .RegistrationOpen}}关闭注册{{else}}开启注册{{end}}" data-confirm-variant="default">
               <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
               <input type="hidden" name="open" value="{{if .RegistrationOpen}}0{{else}}1{{end}}">
               {{if .RegistrationOpen}}
@@ -385,6 +420,83 @@
     </footer>
 
   </main>
+
+  <script>
+    (function () {
+      const homeLink = document.getElementById('siteHomeLink');
+      if (!homeLink) {
+        return;
+      }
+      homeLink.addEventListener('click', function (event) {
+        const isHomePath = window.location.pathname === '/';
+        const noQuery = !window.location.search;
+        if (isHomePath && noQuery) {
+          event.preventDefault();
+          window.location.reload();
+        }
+      });
+    })();
+  </script>
+
+  <script>
+    (function () {
+      function shouldBlockShortcut(event) {
+        const key = (event.key || '').toLowerCase();
+        const ctrlOrMeta = event.ctrlKey || event.metaKey;
+        if (event.key === 'F12') return true;
+        if (ctrlOrMeta && event.shiftKey && (key === 'i' || key === 'j' || key === 'c')) return true;
+        if (ctrlOrMeta && (key === 's' || key === 'u')) return true;
+        return false;
+      }
+
+      document.addEventListener('keydown', function (event) {
+        if (shouldBlockShortcut(event)) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      }, true);
+
+      const menu = document.createElement('div');
+      menu.className = 'custom-context-menu';
+      menu.innerHTML = '<button type="button"><span style="font-size:14px;opacity:0.7;line-height:1">↻</span><span>刷新页面</span></button>';
+      document.body.appendChild(menu);
+
+      const refreshBtn = menu.querySelector('button');
+      refreshBtn.addEventListener('click', function () {
+        menu.classList.remove('ctx-visible');
+        window.location.reload();
+      });
+
+      function hideMenu() {
+        menu.classList.remove('ctx-visible');
+      }
+
+      document.addEventListener('contextmenu', function (event) {
+        event.preventDefault();
+        // 离屏测量真实尺寸
+        menu.style.cssText = 'display:block;left:-9999px;top:-9999px';
+        const w = menu.offsetWidth;
+        const h = menu.offsetHeight;
+        // 计算安全坐标，避免溢出视口
+        let x = event.clientX;
+        let y = event.clientY;
+        if (x + w > window.innerWidth)  x = Math.max(8, window.innerWidth  - w - 8);
+        if (y + h > window.innerHeight) y = Math.max(8, window.innerHeight - h - 8);
+        // 清除内联样式，由 class 控制显示，触发入场动画
+        menu.style.cssText = '';
+        menu.style.left = x + 'px';
+        menu.style.top  = y + 'px';
+        menu.classList.remove('ctx-visible');
+        void menu.offsetWidth;
+        menu.classList.add('ctx-visible');
+      }, true);
+
+      document.addEventListener('click', hideMenu, true);
+      document.addEventListener('scroll', hideMenu, true);
+      window.addEventListener('resize', hideMenu);
+      window.addEventListener('blur', hideMenu);
+    })();
+  </script>
 
   <script>
     (function(){
@@ -535,6 +647,113 @@
   </script>
   <script>
     (function(){
+      const confirmMask = document.createElement('div');
+      confirmMask.className = 'custom-confirm-mask';
+      confirmMask.innerHTML = '' +
+        '<div class="custom-confirm-dialog" data-variant="danger" role="dialog" aria-modal="true" aria-labelledby="customConfirmTitle">' +
+          '<div class="custom-confirm-header">' +
+            '<span class="custom-confirm-icon">!</span>' +
+            '<span id="customConfirmTitle" class="custom-confirm-title">危险操作确认</span>' +
+          '</div>' +
+          '<p class="custom-confirm-message"></p>' +
+          '<div class="custom-confirm-actions">' +
+            '<button type="button" class="custom-confirm-btn cancel">取消</button>' +
+            '<button type="button" class="custom-confirm-btn confirm">确认</button>' +
+          '</div>' +
+        '</div>';
+      document.body.appendChild(confirmMask);
+
+      const confirmMessage = confirmMask.querySelector('.custom-confirm-message');
+      const confirmCancelBtn = confirmMask.querySelector('.custom-confirm-btn.cancel');
+      const confirmOkBtn = confirmMask.querySelector('.custom-confirm-btn.confirm');
+      const confirmDialog = confirmMask.querySelector('.custom-confirm-dialog');
+      const confirmTitle = confirmMask.querySelector('.custom-confirm-title');
+      const confirmIcon = confirmMask.querySelector('.custom-confirm-icon');
+      let confirmResolver = null;
+      let lastFocusedElement = null;
+
+      function resolveVariant(variant, actionLabel, message) {
+        if (variant === 'danger' || variant === 'default') {
+          return variant;
+        }
+        const merged = (String(actionLabel || '') + ' ' + String(message || '')).toLowerCase();
+        if (/(删除|终止|清空|移除|销毁|停用|drop|terminate|delete|remove)/.test(merged)) {
+          return 'danger';
+        }
+        return 'default';
+      }
+
+      function closeConfirm(result) {
+        confirmMask.classList.remove('is-open');
+        document.body.style.removeProperty('overflow');
+        if (confirmResolver) {
+          const resolve = confirmResolver;
+          confirmResolver = null;
+          resolve(result);
+        }
+        if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
+          lastFocusedElement.focus();
+        }
+      }
+
+      function showConfirm(message, actionLabel, variant) {
+        if (confirmResolver) {
+          closeConfirm(false);
+        }
+        lastFocusedElement = document.activeElement;
+        const finalVariant = resolveVariant(variant, actionLabel, message);
+        confirmDialog.setAttribute('data-variant', finalVariant);
+        if (finalVariant === 'danger') {
+          confirmTitle.textContent = '危险操作确认';
+          confirmIcon.textContent = '!';
+        } else {
+          confirmTitle.textContent = '操作确认';
+          confirmIcon.textContent = 'i';
+        }
+        confirmMessage.textContent = message || '确定继续吗？';
+        confirmOkBtn.textContent = actionLabel || '确认';
+        confirmMask.classList.add('is-open');
+        document.body.style.overflow = 'hidden';
+        setTimeout(function () {
+          confirmCancelBtn.focus();
+        }, 0);
+        return new Promise(function (resolve) {
+          confirmResolver = resolve;
+        });
+      }
+
+      confirmCancelBtn.addEventListener('click', function () {
+        closeConfirm(false);
+      });
+      confirmOkBtn.addEventListener('click', function () {
+        closeConfirm(true);
+      });
+      confirmMask.addEventListener('click', function (event) {
+        if (event.target === confirmMask) {
+          closeConfirm(false);
+        }
+      });
+      document.addEventListener('keydown', function (event) {
+        if (!confirmMask.classList.contains('is-open')) {
+          return;
+        }
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          closeConfirm(false);
+        }
+        if (event.key === 'Tab' && confirmDialog) {
+          const focusables = [confirmCancelBtn, confirmOkBtn].filter(Boolean);
+          if (!focusables.length) return;
+          const current = document.activeElement;
+          const index = focusables.indexOf(current);
+          event.preventDefault();
+          const nextIndex = event.shiftKey
+            ? (index <= 0 ? focusables.length - 1 : index - 1)
+            : (index === focusables.length - 1 ? 0 : index + 1);
+          focusables[nextIndex].focus();
+        }
+      });
+
       async function handleAjaxSubmit(form){
         const submitButtons = Array.from(form.querySelectorAll('button')).filter((btn) => {
           const type = (btn.getAttribute('type') || 'submit').toLowerCase();
@@ -588,10 +807,29 @@
         if(!(form instanceof HTMLFormElement)){
           return;
         }
-        if(!form.matches('[data-ajax]')){
+        if(event.defaultPrevented){
           return;
         }
-        if(event.defaultPrevented){
+
+        const confirmText = form.getAttribute('data-confirm');
+        if(confirmText){
+          event.preventDefault();
+          const actionLabel = form.getAttribute('data-confirm-action') || '确认';
+          const variant = form.getAttribute('data-confirm-variant') || '';
+          showConfirm(confirmText, actionLabel, variant).then((ok) => {
+            if(!ok){
+              return;
+            }
+            if(form.matches('[data-ajax]')){
+              handleAjaxSubmit(form);
+              return;
+            }
+            form.submit();
+          });
+          return;
+        }
+
+        if(!form.matches('[data-ajax]')){
           return;
         }
         event.preventDefault();

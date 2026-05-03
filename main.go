@@ -359,20 +359,10 @@ func main() {
 		panic(err)
 	}
 
-	defaultUsername := strings.TrimSpace(os.Getenv("APP_USERNAME"))
-	if defaultUsername == "" {
-		defaultUsername = "admin"
-	}
-	defaultPassword := strings.TrimSpace(os.Getenv("APP_PASSWORD"))
-	if defaultPassword == "" {
-		defaultPassword = "admin123"
-	}
-	if _, err := appStore.EnsureUser(defaultUsername, defaultPassword); err != nil {
-		panic(err)
-	}
-
 	r := gin.New()
 	r.Use(gin.Logger(), gin.Recovery())
+	r.Static("/static", "./static")
+	r.StaticFile("/favicon.ico", "./favicon.ico")
 
 	// templates
 	tmpl := template.Must(template.New("").Funcs(template.FuncMap{
@@ -425,15 +415,25 @@ func main() {
 			return
 		}
 		s := session.Must(c)
+		userCount, _ := appStore.CountUsers(c.Request.Context())
 		regOpen, _ := appStore.RegistrationOpen(c.Request.Context())
 		data := PageData{
 			Title:            "AutoSail 登录",
 			CSRFToken:        s.GetString("csrf_token", ""),
 			RegistrationOpen: regOpen,
 		}
+		if userCount == 0 {
+			data.Flash.Info = "首次使用：请直接输入要创建的管理员账号和密码登录。"
+		}
 		switch c.Query("msg") {
 		case "bad":
 			data.Flash.Error = "用户名或密码错误"
+		case "init_invalid":
+			data.Flash.Error = "首次初始化失败：用户名和密码不能为空"
+		case "init_failed":
+			data.Flash.Error = "首次初始化失败，请重试"
+		case "init_ok":
+			data.Flash.Success = "已创建管理员账号并登录"
 		case "csrf":
 			data.Flash.Error = "请求已失效，请重试"
 		case "logout":
@@ -449,6 +449,23 @@ func main() {
 	r.POST("/login", func(c *gin.Context) {
 		username := strings.TrimSpace(c.PostForm("username"))
 		password := strings.TrimSpace(c.PostForm("password"))
+
+		userCount, err := appStore.CountUsers(c.Request.Context())
+		if err != nil {
+			c.Redirect(http.StatusFound, "/login?msg=bad")
+			return
+		}
+		if userCount == 0 {
+			if username == "" || password == "" {
+				c.Redirect(http.StatusFound, "/login?msg=init_invalid")
+				return
+			}
+			if _, err := appStore.EnsureUser(username, password); err != nil {
+				c.Redirect(http.StatusFound, "/login?msg=init_failed")
+				return
+			}
+		}
+
 		user, err := appStore.AuthenticateUser(c.Request.Context(), username, password)
 		if err != nil {
 			c.Redirect(http.StatusFound, "/login?msg=bad")
@@ -461,6 +478,10 @@ func main() {
 			s.SetString("is_admin", "1")
 		} else {
 			s.SetString("is_admin", "0")
+		}
+		if userCount == 0 {
+			c.Redirect(http.StatusFound, "/?msg=init_ok")
+			return
 		}
 		c.Redirect(http.StatusFound, "/")
 	})

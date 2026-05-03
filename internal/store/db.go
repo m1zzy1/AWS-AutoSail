@@ -259,11 +259,19 @@ func (s *Store) CreateUser(ctx context.Context, username, password string) (*Use
 	if err != sql.ErrNoRows {
 		return nil, err
 	}
+	var userCount int
+	if err = tx.QueryRowContext(ctx, `SELECT COUNT(1) FROM users;`).Scan(&userCount); err != nil {
+		return nil, err
+	}
+	isAdmin := 0
+	if userCount == 0 {
+		isAdmin = 1
+	}
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, err
 	}
-	res, err := tx.ExecContext(ctx, `INSERT INTO users (username, password_hash, is_admin) VALUES (?, ?, 0);`, username, string(hash))
+	res, err := tx.ExecContext(ctx, `INSERT INTO users (username, password_hash, is_admin) VALUES (?, ?, ?);`, username, string(hash), isAdmin)
 	if err != nil {
 		return nil, err
 	}
@@ -274,7 +282,7 @@ func (s *Store) CreateUser(ctx context.Context, username, password string) (*Use
 	if err = tx.Commit(); err != nil {
 		return nil, err
 	}
-	return &User{ID: insertID, Username: username, PasswordHash: string(hash), IsAdmin: false}, nil
+	return &User{ID: insertID, Username: username, PasswordHash: string(hash), IsAdmin: isAdmin == 1}, nil
 }
 
 func (s *Store) AuthenticateUser(ctx context.Context, username, password string) (*User, error) {
@@ -357,6 +365,14 @@ func (s *Store) DeleteUser(ctx context.Context, userID int64) error {
 func (s *Store) CountAdmins(ctx context.Context) (int, error) {
 	var count int
 	if err := s.db.QueryRowContext(ctx, `SELECT COUNT(1) FROM users WHERE is_admin = 1;`).Scan(&count); err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func (s *Store) CountUsers(ctx context.Context) (int, error) {
+	var count int
+	if err := s.db.QueryRowContext(ctx, `SELECT COUNT(1) FROM users;`).Scan(&count); err != nil {
 		return 0, err
 	}
 	return count, nil
